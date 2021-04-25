@@ -77,11 +77,12 @@ class TestAddCase(unittest.TestCase):
 
     def test_18(self):
         res = main("2(10)")
-        self.assertEqual(res, 210)
+        self.assertEqual(res, 20)
     
+
     def test_19(self):
         res = main("3+2(5+5)")
-        self.assertEqual(res, 213)
+        self.assertEqual(res, 23)
 
 
 if __name__ == '__main__':
