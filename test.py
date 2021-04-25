@@ -73,7 +73,7 @@ class TestAddCase(unittest.TestCase):
 
     def test_17(self):
         res = main("(*10)-2")
-        self.assertEqual(res, "Input Erro")
+        self.assertEqual(res, "Input Error")
 
     # def test_18(self):
     #     res = main("2(10)")
