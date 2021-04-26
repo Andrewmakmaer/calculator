@@ -3,8 +3,15 @@ dict_operators = {'+': 1, '-': 1, '*': 2, '/': 2}
 
 
 # replacing "(-...)" with "(0-...)"
-# or "(+...)" with "(...)"
+# or "(+...)" with "(...)" or "...(...)" with "...*(...)"
 def piece_replacement(replace_in_str, operator, start):
+    if operator == '*':
+        return (replace_in_str.replace(replace_in_str[start: start + 2],
+                                       "{}*(".format(replace_in_str[start])))
+    elif operator == "empty":
+        return (replace_in_str.replace(replace_in_str[start: start + 2],
+                                       "(0)"))
+
     prom = start + 3
     while not replace_in_str[prom] in dict_operators and replace_in_str[prom] != ')':
         prom += 1
@@ -16,13 +23,18 @@ def piece_replacement(replace_in_str, operator, start):
                                        "0-{}".format(replace_in_str[start + 2: prom])))
 
 
-# case check (-...) and (+...)
+# case check (-...) or (+...) and ...(...)
 def negativ_transformer(n_string):
     for item in range(len(n_string)):
-        if n_string[item] == '(' and n_string[item + 1] == '-' and n_string != ")":
+        if n_string[item] == '(' and n_string[item + 1] == '-' and n_string[item + 2] != ")":
             n_string = piece_replacement(n_string, '-', item)
-        elif n_string[item] == '(' and n_string[item + 1] == '+' and n_string != ")":
+        elif n_string[item] == '(' and n_string[item + 1] == '+' and n_string[item + 2] != ")":
             n_string = piece_replacement(n_string, '+', item)
+
+        if n_string[item] == '(' and n_string[item - 1] in number_list:
+            n_string = piece_replacement(n_string, '*', item - 1)
+        if n_string[item] == '(' and n_string[item + 1] == ')':
+            n_string = piece_replacement(n_string, "empty", item)
     return n_string
 
 
@@ -40,7 +52,7 @@ def string_validator(v_string):
                 raise ValueError
         elif item == "(":
             quantity_open_brackets += 1
-        elif item == ")":
+        elif item == ")" and quantity_open_brackets > quantity_close_brackets:
             quantity_close_brackets += 1
         else:
             raise ValueError
@@ -65,10 +77,12 @@ def operator_of_operations(transforming_list, operator):
 
 def main(calc_string):
     calc_string = calc_string.replace(" ", "")
-    calc_string = negativ_transformer(calc_string)
     try:
+        calc_string = negativ_transformer(calc_string)
         string_validator(calc_string)
     except ValueError:
+        return "Input Error"
+    except IndexError:
         return "Input Error"
 
     list_num = []
@@ -124,8 +138,10 @@ def main(calc_string):
             list_num = operator_of_operations(list_num, list_operation.pop())
         except ZeroDivisionError:
             return "Error, division by zero was formed during execution"
-
-    result = list_num[0]
+    try:
+        result = list_num[0]
+    except IndexError:
+        return "Input Error"
     return result
 
 
